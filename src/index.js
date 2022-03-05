@@ -9,7 +9,10 @@ import {
 	query,
 	where,
 	getDoc,
+	updateDoc,
 } from "firebase/firestore"
+
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
 
 const firebaseConfig = {
 	apiKey: "AIzaSyCiZX7NKn7p5zz8VNVbjqWDudaJymsf-Og",
@@ -25,6 +28,7 @@ initializeApp(firebaseConfig)
 
 // init services
 const db = getFirestore()
+const auth = getAuth()
 
 // collection ref
 const colRef = collection(db, "books")
@@ -69,4 +73,35 @@ const docRef = doc(db, "books", "QRmn1dPUd5KZk6uEfax3")
 
 onSnapshot(docRef, (doc) => {
 	console.log(doc.data(), doc.id)
+})
+
+// updating a document
+const updateForm = document.querySelector(".update")
+updateForm.addEventListener("submit", (e) => {
+	e.preventDefault()
+	const docRef = doc(db, "books", updateForm.id.value)
+
+	updateDoc(docRef, {
+		title: "updated title",
+	}).then(() => {
+		updateForm.reset()
+	})
+})
+
+// signing users up
+const signupForm = document.querySelector(".signup")
+signupForm.addEventListener("submit", (e) => {
+	e.preventDefault()
+
+	const email = signupForm.email.value
+	const password = signupForm.password.value
+
+	createUserWithEmailAndPassword(auth, email, password)
+		.then((cred) => {
+			console.log("user created", cred.user)
+			signupForm.reset()
+		})
+		.catch((err) => {
+			console.log(err.message)
+		})
 })
